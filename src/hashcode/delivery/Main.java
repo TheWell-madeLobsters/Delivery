@@ -20,6 +20,8 @@ public class Main {
 
     public static void main(String[] args) {
         process(BUSY_DAY);
+        process(REDUNDANCY);
+        process(MOTHER_OF_ALL_WAREHOUSES);
 
     }
     
@@ -60,8 +62,8 @@ public class Main {
             Collections.sort(entry.getValue(), new Comparator<Order>() {
 
                 public int compare(Order o1, Order o2) {
-                    Double distance1 = Utils.calcDistance(o1.positionX, o1.positionY, w.positionX, w.positionY);
-                    Double distance2 = Utils.calcDistance(o2.positionX, o2.positionY, w.positionX, w.positionY);
+                    Integer distance1 = Utils.calcDistance(o1.positionX, o1.positionY, w.positionX, w.positionY);
+                    Integer distance2 = Utils.calcDistance(o2.positionX, o2.positionY, w.positionX, w.positionY);
                     return distance1.compareTo(distance2);
                 }
                 
@@ -120,7 +122,47 @@ public class Main {
                     
                 }
                 
-                
+                if(!currentDrone.isMoving[time]) {
+                    
+                    if(!currentDrone.isEmpty()) {
+                        
+//                        for(Order order : warehouseOrders) {
+//                            for(Map.Entry<Product, Integer> orderItem : order.items.entrySet()) {
+//                                if (orderItem == currentDrone.)
+//                                {
+//                                }
+//                            }
+//                        }
+//                        
+//                        
+//                            Product product = orderItem.getKey();
+//                            int quantity = orderItem.getValue();
+//                            if(currentWarehouse.pickItem(product, orderItem.getValue())) {
+//                                int loadQuantity = (currentDrone.maxLoad - currentDrone.getCurrentLoad()) / product.weight;
+//                                currentDrone.loadItem(product, loadQuantity);
+//                                
+//                              
+//                                
+//                                int effectiveQuantity;
+//                                if(loadQuantity > quantity) {
+//                                    effectiveQuantity = quantity;
+//                                    currentOrder.items.remove(orderItem.getKey());
+//                                } else {
+//                                    effectiveQuantity = loadQuantity;
+//                                    currentOrder.items.put(orderItem.getKey(), quantity - loadQuantity);
+//                                }
+//                                
+//                                commands.add(new Deliver(droneId, currentOrder.orderId, product.id, effectiveQuantity));
+//                                
+//                                int distance = Utils.calcDistance(currentDrone.positionX, currentDrone.positionY, currentOrder.positionX, currentOrder.positionY);
+//                                
+//                                currentDrone.isMoving[time] = false;
+//                                currentDrone.isMoving[time + distance] = false;
+//                            }
+//                        }
+                    }
+                    
+                }
                 
             }
             
