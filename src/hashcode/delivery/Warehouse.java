@@ -25,6 +25,18 @@ public class Warehouse {
         }
     }
     
+    public boolean canPickItem(Product product, int quantity) {
+        int loaded = products.get(product);
+        int remaining = loaded - quantity;
+        if(remaining > 0) {
+            return true;
+        } else if (remaining == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
     public boolean pickItem(Product product, int quantity) {
         int loaded = products.get(product);
         int remaining = loaded - quantity;

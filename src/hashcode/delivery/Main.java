@@ -19,8 +19,8 @@ public class Main {
     public static final String MOTHER_OF_ALL_WAREHOUSES = "mother_of_all_warehouses";
 
     public static void main(String[] args) {
-        process(BUSY_DAY);
-        process(REDUNDANCY);
+        //process(BUSY_DAY);
+        //process(REDUNDANCY);
         process(MOTHER_OF_ALL_WAREHOUSES);
 
     }
@@ -70,7 +70,7 @@ public class Main {
             });
         }
         
-        Map<Integer, Integer> droneDistancesToDestination = new HashMap<>();
+//        Map<Integer, Integer> droneDistancesToDestination = new HashMap<>();
         Map<Integer, Map<Integer, Integer>> orderDelivered = new HashMap<>();
         
         for(Order order : input.orders.values()) {
@@ -82,49 +82,64 @@ public class Main {
         }
         
         int currentWarehouseId = 0;
-        for(int time = 0; time < input.turnsDeadline; time++) {
+        for(int time = 0; time < 1000; time++) {
             
             for(int droneId = 0; droneId < input.droneNumber; droneId++) {
+                System.out.println("Drone #" + droneId + " Turn #" + time);
+                
                 Drone currentDrone = input.drones.get(droneId);
                 Warehouse currentWarehouse = input.warehouses.get(currentWarehouseId);
-                List<Order> warehouseOrders = warehousesOrders.get(currentWarehouseId);
+                List<Order> warehouseOrder = warehousesOrders.get(currentWarehouseId);
                 
-                Order currentOrder = warehouseOrders.get(0);
-                
-                if(Utils.calcDistance(currentDrone.positionX, currentDrone.positionY, currentWarehouse.positionX, currentWarehouse.positionY) == 0) {
-                    
+                for(Order currentOrder : warehouseOrder) {
+                    if(!orderDelivered.containsKey(currentOrder.orderId)) {
+                        continue;
+                    }
+                    boolean satisfied = true;
                     for(Map.Entry<Product, Integer> orderItem : currentOrder.items.entrySet()) {
                         Product product = orderItem.getKey();
                         int quantity = orderItem.getValue();
-                        if(currentWarehouse.pickItem(product, orderItem.getValue())) {
-                            int loadQuantity = (currentDrone.maxLoad - currentDrone.getCurrentLoad()) / product.weight;
-                            currentDrone.loadItem(product, loadQuantity);
-                            
-                            commands.add(new Load(droneId, currentWarehouseId, product.id, loadQuantity));
-                            
-                            int effectiveQuantity;
-                            if(loadQuantity > quantity) {
-                                effectiveQuantity = quantity;
-                                currentOrder.items.remove(orderItem.getKey());
-                            } else {
-                                effectiveQuantity = loadQuantity;
-                                currentOrder.items.put(orderItem.getKey(), quantity - loadQuantity);
-                            }
-                            
-                            commands.add(new Deliver(droneId, currentOrder.orderId, product.id, effectiveQuantity));
-                            
-                            int distance = Utils.calcDistance(currentDrone.positionX, currentDrone.positionY, currentOrder.positionX, currentOrder.positionY);
-                            
-                            currentDrone.isMoving[time] = false;
-                            currentDrone.isMoving[time + distance] = false;
+                        if(!currentWarehouse.canPickItem(product, quantity)) {
+                            satisfied = false;
+                            break;
                         }
+
+                        //int distance = Utils.calcDistance(currentDrone.positionX, currentDrone.positionY, currentOrder.positionX, currentOrder.positionY);
+
                     }
-                    
+                    if(satisfied) {
+                        System.out.println("Drone #" + droneId + " can satisfy order #" + currentOrder.orderId);
+                        
+                        for(Map.Entry<Product, Integer> orderItem : currentOrder.items.entrySet()) {
+                            Product product = orderItem.getKey();
+                            int quantity = orderItem.getValue();
+                            
+                            int loadQuantity = (currentDrone.maxLoad - currentDrone.getCurrentLoad()) / product.weight;
+                            if(loadQuantity > 0) {
+                                currentDrone.loadItem(product, loadQuantity);
+                                
+                                commands.add(new Load(droneId, currentWarehouseId, product.id, loadQuantity));
+                                
+                                int effectiveQuantity;
+                                if(loadQuantity > quantity) {
+                                    effectiveQuantity = quantity;
+                                } else {
+                                    effectiveQuantity = loadQuantity;
+                                }
+                                   
+                                commands.add(new Deliver(droneId, currentOrder.orderId, product.id, effectiveQuantity));
+                            }
+                        }
+                        
+                        orderDelivered.remove(currentOrder.orderId);
+                        
+                    }
+                   
                 }
                 
-                if(!currentDrone.isMoving[time]) {
-                    
-                    if(!currentDrone.isEmpty()) {
+//                if(!currentDrone.isMoving[time]) {
+//                    
+//                    if(!currentDrone.isEmpty()) {
                         
 //                        for(Order order : warehouseOrders) {
 //                            for(Map.Entry<Product, Integer> orderItem : order.items.entrySet()) {
@@ -160,9 +175,9 @@ public class Main {
 //                                currentDrone.isMoving[time + distance] = false;
 //                            }
 //                        }
-                    }
-                    
-                }
+//                    }
+//                    
+//                }
                 
             }
             
