@@ -21,6 +21,8 @@ public class Main {
         System.out.println("Order number is " + input.ordersNumber + " -> " + input.orders.size());
         System.out.println("Drones number is " + input.droneNumber + " -> " + input.drones.size());
         
+        
+        
     }
     
     public static InputData readFile(String file) {
