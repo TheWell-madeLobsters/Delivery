@@ -1,8 +1,17 @@
 package hashcode.delivery;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class Main {
     public static final String BUSY_DAY = "busy_day";
@@ -21,8 +30,117 @@ public class Main {
         System.out.println("Order number is " + input.ordersNumber + " -> " + input.orders.size());
         System.out.println("Drones number is " + input.droneNumber + " -> " + input.drones.size());
         
+        List<Command> commands = new LinkedList<>();
         
+        //first step
+        //calculate distance between warehouse and orders
         
+        Map<Integer, List<Order>> warehousesOrders = new HashMap<>();
+        
+        for(int i = 0; i < input.warehousesNumber; i++) {
+            warehousesOrders.put(i, new LinkedList<>());
+        }
+        
+        for(Order order : input.orders.values()) {
+            Warehouse nearest = input.warehouses.get(0);
+            double shortestDistance = Utils.calcDistance(nearest.positionX, nearest.positionY, order.positionX, order.positionY);
+            for(int i = 1; i < input.warehousesNumber; i++) {
+                Warehouse w = input.warehouses.get(i);
+                double distance = Utils.calcDistance(w.positionX, w.positionY, order.positionX, order.positionY);
+                if(distance < shortestDistance) {
+                    nearest = w;
+                    shortestDistance = distance;
+                }
+            }
+            warehousesOrders.get(nearest.warehouseId).add(order);
+        }
+        
+        for(Map.Entry<Integer, List<Order>> entry : warehousesOrders.entrySet()) {
+            final Warehouse w = input.warehouses.get(entry.getKey());
+            Collections.sort(entry.getValue(), new Comparator<Order>() {
+
+                public int compare(Order o1, Order o2) {
+                    Double distance1 = Utils.calcDistance(o1.positionX, o1.positionY, w.positionX, w.positionY);
+                    Double distance2 = Utils.calcDistance(o2.positionX, o2.positionY, w.positionX, w.positionY);
+                    return distance1.compareTo(distance2);
+                }
+                
+            });
+        }
+        
+        Map<Integer, Integer> droneDistancesToDestination = new HashMap<>();
+        Map<Integer, Map<Integer, Integer>> orderDelivered = new HashMap<>();
+        
+        for(Order order : input.orders.values()) {
+            Map<Integer, Integer> items = new HashMap<>();
+            for(Map.Entry<Product, Integer> orderItem : order.items.entrySet()) {
+                items.put(orderItem.getKey().id, orderItem.getValue());
+            }
+            orderDelivered.put(order.orderId, items);
+        }
+        
+        int currentWarehouseId = 0;
+        for(int time = 0; time < input.turnsDeadline; time++) {
+            
+            for(int droneId = 0; droneId < input.droneNumber; droneId++) {
+                Drone currentDrone = input.drones.get(droneId);
+                Warehouse currentWarehouse = input.warehouses.get(currentWarehouseId);
+                List<Order> warehouseOrders = warehousesOrders.get(currentWarehouseId);
+                
+                Order currentOrder = warehouseOrders.get(0);
+                
+                if(Utils.calcDistance(currentDrone.positionX, currentDrone.positionY, currentWarehouse.positionX, currentWarehouse.positionY) == 0) {
+                    
+                    for(Map.Entry<Product, Integer> orderItem : currentOrder.items.entrySet()) {
+                        Product product = orderItem.getKey();
+                        int quantity = orderItem.getValue();
+                        if(currentWarehouse.pickItem(product, orderItem.getValue())) {
+                            int loadQuantity = (currentDrone.maxLoad - currentDrone.getCurrentLoad()) / product.weight;
+                            currentDrone.loadItem(product, loadQuantity);
+                            
+                            commands.add(new Load(droneId, currentWarehouseId, product.id, loadQuantity));
+                            
+                            int effectiveQuantity;
+                            if(loadQuantity > quantity) {
+                                effectiveQuantity = quantity;
+                                currentOrder.items.remove(orderItem.getKey());
+                            } else {
+                                effectiveQuantity = loadQuantity;
+                                currentOrder.items.put(orderItem.getKey(), quantity - loadQuantity);
+                            }
+                            
+                            commands.add(new Deliver(droneId, currentOrder.orderId, product.id, effectiveQuantity));
+                            
+                            int distance = Utils.calcDistance(currentDrone.positionX, currentDrone.positionY, currentOrder.positionX, currentOrder.positionY);
+                            
+                            currentDrone.isMoving[time] = false;
+                            currentDrone.isMoving[time + distance] = false;
+                        }
+                    }
+                    
+                }
+                
+                
+                
+            }
+            
+        }
+        
+        printResult(commands, file + ".out");
+    }
+    
+    public static void printResult(List<Command> commands, String file) {
+        PrintWriter writer = null;
+        try {
+            writer = new PrintWriter(file, "UTF-8");
+        } catch (FileNotFoundException | UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        writer.println(commands.size());
+        for (Command instruction : commands) {
+            writer.println(instruction);
+        }
+        writer.close();
     }
     
     public static InputData readFile(String file) {
@@ -78,7 +196,7 @@ public class Main {
                 sCurrentLine = br.readLine();
                 int itemNumber = Integer.parseInt(sCurrentLine);
                 
-                Order order = new Order(Integer.parseInt(orderPosition[0]), Integer.parseInt(orderPosition[1]), itemNumber);
+                Order order = new Order(i, Integer.parseInt(orderPosition[0]), Integer.parseInt(orderPosition[1]), itemNumber);
                 
                 sCurrentLine = br.readLine();
                 String[] orderItems = sCurrentLine.split(" ");
@@ -95,7 +213,7 @@ public class Main {
             
             Warehouse warehouse0 = input.warehouses.get(0);
             for(int i = 0; i < input.droneNumber; i++) {
-                Drone drone = new Drone(warehouse0.positionX, warehouse0.positionY, input.maximumLoad);
+                Drone drone = new Drone(warehouse0.positionX, warehouse0.positionY, input.maximumLoad, input.turnsDeadline);
                 input.drones.put(i, drone);
             }
 

@@ -10,11 +10,17 @@ public class Drone {
     public int maxLoad;
     public Map<Product, Integer> inventory;
     
-    public Drone(int positionX, int positionY, int maxLoad) {
+    public boolean[] isMoving;
+    
+    public Drone(int positionX, int positionY, int maxLoad, int turns) {
         this.positionX = positionX; 
         this.positionY = positionY;
         this.maxLoad = maxLoad;
         this.inventory = new HashMap<>();
+        isMoving = new boolean[turns];
+        for(int i = 0; i < turns; i++) {
+            isMoving[i] = true;
+        }
     }
     
     public boolean loadItem(Product product, int quantity) {
@@ -29,6 +35,10 @@ public class Drone {
         } else {
             return false;
         }
+    }
+    
+    public boolean isEmpty() {
+        return this.inventory.size() == 0;
     }
     
     public boolean unloadItem(Product product, int quantity) {
