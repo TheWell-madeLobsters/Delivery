@@ -1,54 +1,77 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package hashcode.delivery;
 
-import java.util.HashMap;
 import java.util.Map;
 
+/**
+ *
+ * @author Marco Terrinoni
+ */
 public class Warehouse {
 
-    public int warehouseId;
-    public int positionX;
-    public int positionY;
-    
-    public Map<Product, Integer> products;
-    
-    public Warehouse(int positionX, int positionY) {
-        this.positionX = positionX;
-        this.positionY = positionY;
-        this.products = new HashMap<>();
+    private int id;
+    private Position position;
+    private Map<Product, Integer> availableProducts;
+
+    public Warehouse(int id, Position position, Map<Product, Integer> availableProducts) {
+        this.id = id;
+        this.position = position;
+        this.availableProducts = availableProducts;
     }
-    
-    public void dropItem(Product product, int quantity) {
-        if(products.containsKey(product)) {
-            products.put(product, products.get(product) + quantity);
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public Position getPosition() {
+        return position;
+    }
+
+    public void setPosition(Position position) {
+        this.position = position;
+    }
+
+    public Map<Product, Integer> getAvailableProducts() {
+        return availableProducts;
+    }
+
+    public void setAvailableProducts(Map<Product, Integer> availableProducts) {
+        this.availableProducts = availableProducts;
+    }
+
+    public boolean releaseProduct(Product product, int quantity) {
+        if (availableProducts.containsKey(product)) {
+            int availableQuantity = availableProducts.get(product);
+            if (availableQuantity < 0) {
+                return false;
+            } else {
+                if (availableQuantity == 0) {
+                    availableProducts.remove(product);
+                } else {
+                    availableQuantity -= quantity;
+                    availableProducts.replace(product, availableQuantity);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void acquireProduct(Product product, int quantity) {
+        if (availableProducts.containsKey(product)) {
+            int availableQuantity = availableProducts.get(product);
+            availableQuantity += quantity;
+            availableProducts.replace(product, availableQuantity);
         } else {
-            products.put(product, quantity);
+            availableProducts.put(product, quantity);
         }
     }
-    
-    public boolean canPickItem(Product product, int quantity) {
-        int loaded = products.get(product);
-        int remaining = loaded - quantity;
-        if(remaining > 0) {
-            return true;
-        } else if (remaining == 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-    
-    public boolean pickItem(Product product, int quantity) {
-        int loaded = products.get(product);
-        int remaining = loaded - quantity;
-        if(remaining > 0) {
-            products.put(product, remaining);
-            return true;
-        } else if (remaining == 0) {
-            products.remove(product);
-            return true;
-        } else {
-            return false;
-        }
-    }
-    
 }

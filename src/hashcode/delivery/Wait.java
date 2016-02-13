@@ -1,16 +1,14 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package hashcode.delivery;
 
-public class Wait extends Command{
-    public int droneId;
-    public int length;
+/**
+ *
+ * @author Marco Terrinoni
+ */
+public class Wait {
     
-    public Wait(int droneId, int length) {
-        super(CommandType.DELIVER);
-        this.droneId = droneId;
-        this.length = length;
-    }
-    
-    public String toString() {
-        return this.droneId + " W " + length;
-    }
 }

@@ -1,20 +1,14 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package hashcode.delivery;
 
-public class Deliver extends Command{
-    public int droneId;
-    public int orderId;
-    public int productType;
-    public int quantity;
+/**
+ *
+ * @author Marco Terrinoni
+ */
+public class Deliver {
     
-    public Deliver(int droneId, int orderId, int productType, int quantity) {
-        super(CommandType.DELIVER);
-        this.droneId = droneId;
-        this.orderId = orderId;
-        this.productType = productType;
-        this.quantity = quantity;
-    }
-    
-    public String toString() {
-        return this.droneId + " D " + this.orderId + " " + productType + " " + quantity;
-    }
 }
