@@ -129,4 +129,170 @@ The next section of the file describes the **warehouse and availability of indiv
 This section contains:
 - a line containing the following natural number:
   - **W** - the number of warehouses (*1 <= W <= 10000*)
-- two lines for each warehouse, each two lines describing the subsequent warehouses 
+- two lines for each warehouse, each two lines describing the subsequent warehouses from warehouse 0 to warehouse *W - 1*:
+  - a line containing two natural numbers separated by a single space: the row and the column in which the warehouse is located (*0 <= row < number of rows*; *0 <= column < number of columns*)
+  - a line containing *P* natural numbers separated by single spaces: number of items of the subsequent product types available at the warehouse, from product type 0 to product type *P - 1*.
+  For each product type, *0 <= number of items <= 10000* holds.
+
+The next section of the file describes the customer orders.
+This section contains:
+- a line containing the following natural number:
+  - **C** - the number of customer orders (*1 <= C <= 10000*)
+- three lines for each order, each three lines describing the subsequent orders from the order 0 to *C - 1*:
+  - a line containing two natural numbers separated by a single space: the row of the delivery cell and the column of the delivery cell (*0 <= row < number of rows*; *0 <= column < number of columns*)
+  - a line containing one natural number **Li** - the number of the ordered product items (*1 <= Li < 10000*)
+  - a line containing **Li** integers separated by single spaces: the product types of the individual product items.
+  For each of the product types, *0 <= product type < P* holds.
+
+### Example
+In the comments, "u" is an abbreviation for units of weight.
+
+```
+100 100 3 50 500
+3
+100 5 450
+2
+0 0
+5 1 0
+5 5
+0 10 2
+3
+1 1
+2
+2 0
+3 3
+3
+0 0 0
+5 6
+1
+2
+```
+
+100 rows, 100 columns, 3 drones, 50 turns, max payload is 500u.\n
+There are 3 different product types.\n
+The product types weight: 100u, 5u, 450u.\n
+There are 2 warehouses.\n
+First warehouse is located at [0, 0].\n
+It stores 5 items of product 0 and 1 of product 1.\n
+Second warehouse is located at [5, 5].\n
+It stores 10 items of product 1 and 2 items of product 2.\n
+There are 3 orders.\n
+First order to be delivered to [1, 1].\n
+First order contains 2 items.\n
+Items of product types: 2, 0.\n
+Second order to be delivered to [3, 3].\n
+Second order contains 3 items.\n
+Items of product types: 0, 0, 0.\n
+Third order to be delivered to [5, 6].\n
+Third order contains 1 item.\n
+Items of product types: 2.
+
+## Submissions
+### File format
+The first line of the output file contains a single integer **Q**, the number of drone commands (*0 <= Q <= D x T*), where **D** is the number of drones and **T** is the duration of the simulation.
+
+The rest of the output file should describe the individual commands to the drones, each command in a separate file.
+Commands for different drones can be intertwined but commands for any given drone must come in chronological order.
+
+Drones are referenced by integer IDs, from 0 to *D - 1*, where **D** is the number of drones given in the input file.
+
+Each **Load** or **Unload** command is described by a line with the following elements separated by single spaces:
+- the ID of the drone that the command is for
+- the command tag - a single character, either '`L`' (for load) or '`U`' (for unload)
+- the ID of the warehouse from which we load items / to which we unload items
+- the ID of the product type
+- the number of items of the product type to be loaded or unloaded - a **positive** integer
+
+*Example command*: `0 L 1 2 3` (Command to drone 0, load at warehouse 1 products of product type 2, three of them).
+
+Each **Deliver** command is described by a line with the following elements separated by single spaces:
+- the ID of the drone that the command is for
+- the command tag - single character '`D`'
+- the ID of the customer order we are delivering items for
+- the ID of the product type
+- the number of items of the product type to be delivered - a **positive** integer
+
+*Example command*: `0 D 1 2 3` (Command to drone 0, deliver for order 1 items of product type 2, three of them).
+
+Each **Wait** command is described by a line with the following elements separated by single spaces:
+- the ID of the drone that the command is for
+- the command tag - single character '`W`'
+- the number of turns for which the drone needs to wait - a **positive** integer
+
+*Example command*: `0 W 3` (Command to drone 0, wait for three turns).
+
+### Example
+```
+9
+0 L 0 0 1
+0 L 0 1 1
+0 D 0 0 1
+0 L 1 2 1
+0 D 0 2 1
+1 L 1 2 1
+1 D 2 2 1
+1 L 0 0 1
+1 D 1 0 1
+```
+
+9 commands in total.\n
+Drone 0: **load** one product 0 at warehouse 0.\n
+Drone 0: **load** one product 1 at warehouse 0.\n
+Drone 0: fly to customer 0 and **deliver** one product to 0.\n
+Drone 0: fly to warehouse 1 and **load** one product 2.\n
+Drone 0: fly to customer 0 and **deliver** one product 2.\n
+Drone 1: fly to warehouse 1 and **load** one product 2.\n
+Drone 1: fly to customer 2 and **deliver** one product 2.\n
+Drone 1: fly to warehouse 0 and **load** one product 0.\n
+Drone 1: fly to customer 1 and **deliver** one product 0.
+
+### Validation
+The output file is considered valid if it meets the following criteria:
+- The format of the output file matches the description above.
+- All commands are valid with regard to the requirements in the Commands section.
+- No order receives more product items of any type than the number of product items of this type that is specified in the order.
+- All commands for any given drone take at most **T** turns in total, where **T** is the number of turns of the simulation.
+
+### Scoring
+Each completed order will earn between 1 and 100 points, depending on the turn in which it is completed.
+The order is completed in the first turn at the end of which all items in the order are delivered.
+
+For an order completed in turn **t** and simulation taking **T** turns in total, the score for the order is calculated as *(T -t)/T x 100*, rounded up to the next integer.
+
+*For* **example** *if the simulation takes 160 turns (T = 160), and an order consists of three items, delivered at turns 5, 15 and 15, then the order is considered completed at t = 15, and the score is calculated as (160 - 15)/160 = 0.90625, multiplied by 100 and rounded up to* **91 points**.
+
+*For an order completed in the last turn of the simulation (t = 159, T = 160), the score would be (160 - 159)/160 = 0.0625, multiplied by 100 and rounded up to* **1 point**.
+
+**The score for a single data set will be the sum of the scores for all completed orders.**
+
+**Note that there are multiple data sets representing separate instances of the problem.
+The final score for your team will be the sum of your best scores on the individual data sets.**
+
+#### Scoring example
+Score for the example solution given above is calculated as follows.
+**Drone 0**:
+- **loads** item 0 from warehouse 0 **in turn 0**
+- **loads** item 1 from warehouse 0 **in turn 1**
+- **flies** to order 0 **in turns 2 and 3**
+- **delivers** item 0 to order 0 **in turn 4**
+- **flies** to warehouse 1 **in turns 5 to 10**
+- **loads** item 2 from warehouse 1 **in turn 11**
+- **flies** to order 0 **in turns 12 to 17**
+- **delivers** item 2 to order 0 **in turn 18**.
+Order 0 is now fulfilled, **scoring (50 - 18)/50 x 100 = 64 points**
+
+**Drone 1**:
+- **flies** to warehouse 1 **in turns 0 to 7**
+- **loads** item 2 from warehouse 1 **in turn 8**
+- **flies** to order 2 **in turn 9**
+- **delivers** item 2 to order 2 **in turn 10**.
+Order 2 is now fulfilled, **scoring (50 - 10)/50 x 100 = 80 points**
+- **flies** to warehouse 0 **in turns 11 to 18**
+- **loads** item 0 from warehouse 0 **in turn 19**
+- **flies** to order 1 **in turns 20 to 24**
+- **delivers** item 0 to order 1 **in turn 25**.
+Order 1 is now fulfilled, **scoring (50 - 25)/50 x 100 = 50 points**
+
+Drone 2 isn't used at all and there are no other orders.
+
+The score of the example submission is *64 + 50 + 80 = 194* points.
