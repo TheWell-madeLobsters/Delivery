@@ -11,7 +11,7 @@ package hashcode.delivery;
  */
 public class Product {
 
-    private int type;
+    private int type; // product Id
     private int weight;
 
     public Product(int type, int weight) {

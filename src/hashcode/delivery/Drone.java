@@ -23,5 +23,7 @@ public class Drone {
         this.maxWeight = maxWeight;
         this.position = position;
     }
+    
+    // TODO: complete Drone class
 
 }

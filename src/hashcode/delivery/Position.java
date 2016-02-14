@@ -19,9 +19,9 @@ public class Position {
         column = 0;
     }
 
-    public Position(int coordX, int coordY) {
-        this.row = coordX;
-        this.column = coordY;
+    public Position(int coordRow, int coordColumn) {
+        this.row = coordRow;
+        this.column = coordColumn;
     }
 
     public int getRow() {

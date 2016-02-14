@@ -16,10 +16,10 @@ public class Order {
     private int id;
     private Position position;
     private int productsNumber;
-    private Map<Product, Integer> products;
+    private Map<Integer, Integer> products;
     private boolean isFulfilled;
 
-    public Order(int id, Position position, int itemsNumber, Map<Product, Integer> items) {
+    public Order(int id, Position position, int itemsNumber, Map<Integer, Integer> items) {
         this.id = id;
         this.position = position;
         this.productsNumber = itemsNumber;
@@ -51,22 +51,22 @@ public class Order {
         this.productsNumber = productsNumber;
     }
 
-    public Map<Product, Integer> getProducts() {
+    public Map<Integer, Integer> getProducts() {
         return products;
     }
 
-    public void setProducts(Map<Product, Integer> products) {
+    public void setProducts(Map<Integer, Integer> products) {
         this.products = products;
     }
 
-    public void deliverProduct(Product product, int quantity) {
-        int currentQuantity = products.get(product);
+    public void deliverProduct(int productId, int quantity) {
+        int currentQuantity = products.get(productId);
         currentQuantity -= quantity;
         productsNumber -= quantity;
         if (currentQuantity == 0) {
-            products.remove(product); // order completed
+            products.remove(productId); // order completed
         } else {
-            products.replace(product, currentQuantity); // update order
+            products.replace(productId, currentQuantity); // update order
         }
         if (productsNumber == 0) { // check if the order is fulfilled
             isFulfilled = true;

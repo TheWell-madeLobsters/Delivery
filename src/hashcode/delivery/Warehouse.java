@@ -15,9 +15,9 @@ public class Warehouse {
 
     private int id;
     private Position position;
-    private Map<Product, Integer> availableProducts;
+    private Map<Integer, Integer> availableProducts;
 
-    public Warehouse(int id, Position position, Map<Product, Integer> availableProducts) {
+    public Warehouse(int id, Position position, Map<Integer, Integer> availableProducts) {
         this.id = id;
         this.position = position;
         this.availableProducts = availableProducts;
@@ -39,25 +39,25 @@ public class Warehouse {
         this.position = position;
     }
 
-    public Map<Product, Integer> getAvailableProducts() {
+    public Map<Integer, Integer> getAvailableProducts() {
         return availableProducts;
     }
 
-    public void setAvailableProducts(Map<Product, Integer> availableProducts) {
+    public void setAvailableProducts(Map<Integer, Integer> availableProducts) {
         this.availableProducts = availableProducts;
     }
 
-    public boolean releaseProduct(Product product, int quantity) {
-        if (availableProducts.containsKey(product)) {
-            int availableQuantity = availableProducts.get(product);
+    public boolean releaseProduct(int productId, int quantity) {
+        if (availableProducts.containsKey(productId)) {
+            int availableQuantity = availableProducts.get(productId);
             if (availableQuantity < 0) {
                 return false;
             } else {
                 if (availableQuantity == 0) {
-                    availableProducts.remove(product);
+                    availableProducts.remove(productId);
                 } else {
                     availableQuantity -= quantity;
-                    availableProducts.replace(product, availableQuantity);
+                    availableProducts.replace(productId, availableQuantity);
                 }
                 return true;
             }
@@ -65,13 +65,13 @@ public class Warehouse {
         return false;
     }
 
-    public void acquireProduct(Product product, int quantity) {
-        if (availableProducts.containsKey(product)) {
-            int availableQuantity = availableProducts.get(product);
+    public void acquireProduct(int productId, int quantity) {
+        if (availableProducts.containsKey(productId)) {
+            int availableQuantity = availableProducts.get(productId);
             availableQuantity += quantity;
-            availableProducts.replace(product, availableQuantity);
+            availableProducts.replace(productId, availableQuantity);
         } else {
-            availableProducts.put(product, quantity);
+            availableProducts.put(productId, quantity);
         }
     }
 }
