@@ -1,13 +1,32 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * The MIT License
+ *
+ * Copyright 2016 The Well-made Lobsters.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 package hashcode.delivery;
 
 import java.util.Map;
 
 /**
+ * Orders class.
  *
  * @author Marco Terrinoni
  */
@@ -59,18 +78,43 @@ public class Order {
         this.products = products;
     }
 
-    public void deliverProduct(int productId, int quantity) {
-        int currentQuantity = products.get(productId);
-        currentQuantity -= quantity;
-        productsNumber -= quantity;
-        if (currentQuantity == 0) {
-            products.remove(productId); // order completed
-        } else {
-            products.replace(productId, currentQuantity); // update order
+    /**
+     * Deliver a product for the current order.
+     *
+     * @param productId the product Id to be delivered
+     * @param quantity  the number of products to be delivered
+     * @return false if the product is not requested or if the delivered amount or products is
+     *         higher than the requested one; true otherwise.
+     */
+    public boolean deliverProduct(int productId, int quantity) {
+        System.out.println("Delivering " + String.valueOf(quantity) + " items of product " + String.
+                valueOf(productId) + " for order " + String.valueOf(id));
+        if (products.containsKey(productId)) {
+            int currentQuantity = products.get(productId);
+            if (currentQuantity < quantity) {
+                System.err.println("ERROR in order " + String.valueOf(id)
+                        + ": delivering a quantity of product " + String.valueOf(productId)
+                        + " higher than requested (" + String.valueOf(quantity) + " instead of "
+                        + String.valueOf(currentQuantity) + ")");
+                return false;
+            }
+
+            currentQuantity -= quantity;
+            productsNumber -= quantity;
+            if (currentQuantity == 0) {
+                products.remove(productId); // product order completed
+            } else {
+                products.replace(productId, currentQuantity); // update order
+            }
+            if (productsNumber == 0) { // check if the order is completely fulfilled
+                isFulfilled = true;
+                System.out.println("Order " + String.valueOf(id) + " fulfilled");
+            }
+            return true;
         }
-        if (productsNumber == 0) { // check if the order is fulfilled
-            isFulfilled = true;
-        }
+        System.err.println("ERROR in order " + String.valueOf(id)
+                + ": delivering a non requested product " + String.valueOf(productId));
+        return false;
     }
 
     public boolean isIsFulfilled() {
